@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+
 import '../user model/model.dart';
 
 abstract class AuthEvent {
@@ -38,9 +39,9 @@ class AuthRegister extends AuthEvent {
 }
 
 class AuthLogOut extends AuthEvent {
-  final Function onSuccsess;
+  final BuildContext context;
   AuthLogOut({
-    required this.onSuccsess,
+    required this.context,
   });
 }
 

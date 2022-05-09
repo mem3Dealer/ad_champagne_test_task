@@ -1,4 +1,6 @@
 import 'package:ad_champagne_test_task/bloc/auth_event.dart';
+import 'package:ad_champagne_test_task/pages/loginPage.dart';
+import 'package:ad_champagne_test_task/transitionAnimation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -47,9 +49,7 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.only(top: 10, bottom: 10),
                 child: ElevatedButton(
                     onPressed: () {
-                      authBloc.add(AuthLogOut(onSuccsess: () {
-                        Navigator.of(context).pop();
-                      }));
+                      authBloc.add(AuthLogOut(context: context));
                     },
                     child: const Text('Выйтить')),
               ),

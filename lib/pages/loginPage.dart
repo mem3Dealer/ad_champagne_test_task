@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:ad_champagne_test_task/bloc/auth_bloc.dart';
 import 'package:ad_champagne_test_task/bloc/auth_event.dart';
+import 'package:ad_champagne_test_task/navigation/navigations.dart';
+import 'package:ad_champagne_test_task/transitionAnimation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -26,6 +28,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     _state = 'login';
+    authBloc.add(AuthInitUser(context: context));
     super.initState();
   }
 
@@ -54,9 +57,9 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    authBloc.add(AuthInitUser(context: context));
     return Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           title: const Text('адШампань'),
         ),
         body: SafeArea(
@@ -108,12 +111,6 @@ class _LoginPageState extends State<LoginPage> {
       email: _email.text,
       password: _password.text,
       onSuccess: () {
-        Navigator.push<void>(
-          context,
-          MaterialPageRoute<void>(
-            builder: (BuildContext context) => const HomePage(),
-          ),
-        );
         _email.clear();
         _password.clear();
       },
@@ -169,7 +166,7 @@ class _LoginPageState extends State<LoginPage> {
                       : {};
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Нет интернет соединения...')));
+              const SnackBar(content: Text('Нет интернет соединения...')));
         }
       },
       builder: (BuildContext context, TapDebouncerFunc? onTap) {
