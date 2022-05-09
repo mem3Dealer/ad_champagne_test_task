@@ -23,7 +23,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _password = TextEditingController();
   final TextEditingController _name = TextEditingController();
   final authBloc = GetIt.I.get<AuthBloc>();
-
+  final PageController _controller = PageController();
   String _state = 'login';
   @override
   void initState() {
@@ -37,13 +37,13 @@ class _LoginPageState extends State<LoginPage> {
     _email.dispose();
     _password.dispose();
     _name.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
-  void changePageStatus(String newstat) {
-    setState(() {
-      _state = newstat;
-    });
+  void changePageStatus(int page) {
+    _controller.animateToPage(page,
+        duration: const Duration(milliseconds: 1000), curve: Curves.decelerate);
   }
 
   Future<bool> hasNetwork() async {
@@ -65,44 +65,42 @@ class _LoginPageState extends State<LoginPage> {
         body: SafeArea(
             child: Center(
           child: Form(
-            key: _formKey,
-            child: ListView(
-              shrinkWrap: true,
-              children: [
-                Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: _state == 'login'
-                        ? loginList()
-                        : _state == 'register'
-                            ? registerList()
-                            : _state == 'reset'
-                                ? resetList()
-                                : []),
-              ],
-            ),
-          ),
+              key: _formKey,
+              child: PageView(
+                controller: _controller,
+                children: [loginList(), registerList(), resetList()],
+              )),
         )));
   }
 
-  List<Widget> loginList() {
+  Widget loginList() {
     final _theme = Theme.of(context);
-    return [
-      Text(
-        'Чьих будешь?',
-        style: _theme.textTheme.headline1,
-      ),
-      Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: emailField(),
-      ),
-      Padding(
-        padding: const EdgeInsets.all(16.0).copyWith(top: 0),
-        child: passwordField(hintText: 'Пароль'),
-      ),
-      myDebounceButton(),
-      myButton(newStatus: 'register', name: 'Познакомимся?'),
-      myButton(newStatus: 'reset', name: 'Забыл пароль?')
-    ];
+    return Center(
+      child: ListView(shrinkWrap: true, children: [
+        Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 16.0),
+              child: Text(
+                'Чьих будешь?',
+                style: _theme.textTheme.headline1,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: emailField(),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0).copyWith(top: 0),
+              child: passwordField(hintText: 'Пароль'),
+            ),
+            myDebounceButton(),
+            myButton(newStatus: 1, name: 'Познакомимся?'),
+            myButton(newStatus: 2, name: 'Забыл пароль?'),
+          ],
+        )
+      ]),
+    );
   }
 
   void _logIn() {
@@ -114,7 +112,7 @@ class _LoginPageState extends State<LoginPage> {
         _email.clear();
         _password.clear();
       },
-      onErrorCallback: () => changePageStatus('register'),
+      onErrorCallback: () => changePageStatus(1),
     ));
   }
 
@@ -138,7 +136,7 @@ class _LoginPageState extends State<LoginPage> {
         newPassword: _password.text,
         context: context,
         onSuccess: () {
-          changePageStatus('login');
+          changePageStatus(0);
         },
         onError: () {
           _email.clear();
@@ -148,7 +146,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget myDebounceButton() {
     return TapDebouncer(
-      cooldown: Duration(milliseconds: 1000),
+      cooldown: const Duration(milliseconds: 1000),
       waitBuilder: (BuildContext cobntext, Widget child) {
         return const CircularProgressIndicator(
           color: Color(0xffE14D43),
@@ -187,57 +185,72 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  List<Widget> registerList() {
+  Widget registerList() {
     final _theme = Theme.of(context);
-    return [
-      Text(
-        'Давай знакомиться',
-        style: _theme.textTheme.headline1,
-      ),
-      Column(
+    return Center(
+      child: ListView(
+        shrinkWrap: true,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 16.0, right: 16, top: 16),
-            child: nameField(),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: emailField(),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0).copyWith(top: 0),
-            child: passwordField(hintText: 'Пароль'),
-          ),
+          Column(children: [
+            Text(
+              'Давай знакомиться',
+              style: _theme.textTheme.headline1,
+            ),
+            Column(
+              children: [
+                Padding(
+                  padding:
+                      const EdgeInsets.only(left: 16.0, right: 16, top: 16),
+                  child: nameField(),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: emailField(),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0).copyWith(top: 0),
+                  child: passwordField(hintText: 'Пароль'),
+                ),
+              ],
+            ),
+            myDebounceButton(),
+            myButton(newStatus: 0, name: 'У меня уже есть аккаунт'),
+            myButton(newStatus: 2, name: 'Забыл пароль? Сбросим')
+          ]),
         ],
       ),
-      myDebounceButton(),
-      myButton(newStatus: 'login', name: 'У меня уже есть аккаунт'),
-      myButton(newStatus: 'reset', name: 'Забыл пароль? Сбросим')
-    ];
+    );
   }
 
-  List<Widget> resetList() {
+  Widget resetList() {
     final _theme = Theme.of(context);
-    return [
-      Text(
-        'Сменим пароль?',
-        style: _theme.textTheme.headline1,
+    return Center(
+      child: ListView(
+        shrinkWrap: true,
+        children: [
+          Column(children: [
+            Text(
+              'Сменим пароль?',
+              style: _theme.textTheme.headline1,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: emailField(),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0).copyWith(top: 0),
+              child: passwordField(hintText: 'Новый пароль'),
+            ),
+            myDebounceButton(),
+            myButton(newStatus: 0, name: 'Вспомнил пароль'),
+            myButton(newStatus: 1, name: 'Пожалуй, начну сначала...')
+          ]),
+        ],
       ),
-      Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: emailField(),
-      ),
-      Padding(
-        padding: const EdgeInsets.all(16.0).copyWith(top: 0),
-        child: passwordField(hintText: 'Новый пароль'),
-      ),
-      myDebounceButton(),
-      myButton(newStatus: 'login', name: 'Вспомнил пароль'),
-      myButton(newStatus: 'register', name: 'Пожалуй, начну сначала...')
-    ];
+    );
   }
 
-  TextButton myButton({required String newStatus, required String name}) {
+  TextButton myButton({required int newStatus, required String name}) {
     return TextButton(
         onPressed: () {
           changePageStatus(newStatus);
