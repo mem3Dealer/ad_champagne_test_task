@@ -1,6 +1,6 @@
 import 'package:ad_champagne_test_task/bloc/auth_event.dart';
 import 'package:ad_champagne_test_task/pages/loginPage.dart';
-import 'package:ad_champagne_test_task/transitionAnimation.dart';
+import 'package:ad_champagne_test_task/navigation/transitionAnimation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';

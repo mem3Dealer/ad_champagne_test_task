@@ -1,4 +1,4 @@
-import 'package:ad_champagne_test_task/transitionAnimation.dart';
+import 'package:ad_champagne_test_task/navigation/transitionAnimation.dart';
 import 'package:flutter/cupertino.dart';
 
 class CustomNavigations {
